@@ -9,11 +9,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "puzzle.h"
 #include "options.h"
 
 int main(int argc, const char *argv[])
 {
 	const struct options *options;
+	struct puzzle *puzzle;
 	int exit_code;
 
 	options = options_parse(argc, argv);
@@ -39,7 +41,14 @@ int main(int argc, const char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	puzzle = puzzle_create(options->input);
+	if (puzzle == NULL) {
+		fprintf(stderr, "Failed to create puzzle!\n");
+		return EXIT_FAILURE;
+	}
+
 	exit_code = EXIT_SUCCESS;
 
+	puzzle_free(puzzle);
 	return exit_code;
 }

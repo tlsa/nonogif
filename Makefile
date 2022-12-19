@@ -41,7 +41,9 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs $(PKG_DEPS))
 
 SRC := \
 	src/cli.c \
+	src/load.c \
 	src/main.c \
+	src/puzzle.c \
 	src/options.c
 
 BUILDDIR := build/$(VARIANT)
