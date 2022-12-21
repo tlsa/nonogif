@@ -8,11 +8,30 @@
 #include <stdint.h>
 
 #include "cli.h"
+#include "output.h"
 #include "options.h"
 
 /** Default options, overwritten by CLI arguments. */
 static struct options options = {
-	0
+	.delay = 2,
+	.grid_size = 16,
+	.border_width = 1,
+	.final_delay = 500,
+	.event = OUTPUT_EVENT_LINE,
+	.style = OUTPUT_STYLE_SIMPLE,
+};
+
+static struct cli_str_val cli_img_opt_style[] = {
+	{ .str = "simple" ,  .val = OUTPUT_STYLE_SIMPLE  },
+	{ .str = "detail", .val = OUTPUT_STYLE_DETAILS },
+	{ .str = NULL },
+};
+
+static struct cli_str_val cli_img_opt_event[] = {
+	{ .str = "line" , .val = OUTPUT_EVENT_LINE  },
+	{ .str = "pass" , .val = OUTPUT_EVENT_PASS  },
+	{ .str = "final", .val = OUTPUT_EVENT_FINAL },
+	{ .str = NULL },
 };
 
 static const struct cli_table_entry cli_entries[] = {
@@ -24,11 +43,84 @@ static const struct cli_table_entry cli_entries[] = {
 		.d = "Path to YAML input file.",
 	},
 	{
+		.s = 'b',
+		.l = "border-width",
+		.t = CLI_UINT,
+		.v.u = &options.border_width,
+		.d = "Set grid border thickness in pixels.",
+	},
+	{
+		.s = 'd',
+		.l = "delay",
+		.t = CLI_UINT,
+		.v.u = &options.delay,
+		.d = "Delay between frames (cs).\n"
+		     "Suggest minimum of 2.",
+	},
+	{
+		.s = 'e',
+		.l = "event",
+		.t = CLI_ENUM,
+		.v.e.e = &options.event,
+		.v.e.desc = cli_img_opt_event,
+		.d = "Set which event triggers a new GIF frame.",
+	},
+	{
+		.s = 'f',
+		.l = "final-delay",
+		.t = CLI_UINT,
+		.v.u = &options.final_delay,
+		.d = "Time to pause showing final frame (cs).",
+	},
+	{
+		.s = 'g',
+		.l = "grid-size",
+		.t = CLI_UINT,
+		.v.u = &options.grid_size,
+		.d = "Set the grid size in pixels.",
+	},
+	{
 		.s = 'h',
 		.l = "help",
 		.t = CLI_SBOOL,
 		.v.b = &options.help,
 		.d = "Print this text.",
+	},
+	{
+		.s = 'k',
+		.l = "keep-frames",
+		.t = CLI_BOOL,
+		.v.b = &options.keep_frames,
+		.d = "Keep GIF frames with no changes.",
+	},
+	{
+		.s = 'o',
+		.l = "output",
+		.t = CLI_STRING,
+		.v.s = &options.output,
+		.d = "Output a GIF file at the given path.",
+	},
+	{
+		.s = 'p',
+		.l = "progress",
+		.t = CLI_BOOL,
+		.v.b = &options.progress,
+		.d = "Print solver progress.",
+	},
+	{
+		.s = 'q',
+		.l = "quiet",
+		.t = CLI_BOOL,
+		.v.b = &options.quiet,
+		.d = "Don't print final result.",
+	},
+	{
+		.s = 's',
+		.l = "style",
+		.t = CLI_ENUM,
+		.v.e.e = &options.style,
+		.v.e.desc = cli_img_opt_style,
+		.d = "Set the output GIF style to use.",
 	},
 	{
 		.s = 'v',

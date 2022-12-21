@@ -9,9 +9,22 @@
 
 struct options {
 	bool help;
+	bool quiet;
 	bool version;
+	bool progress;
+	bool keep_frames;
 
 	const char *input;
+	const char *output;
+
+	int64_t event;
+	int64_t style;
+
+	uint64_t delay;
+	uint64_t final_delay;
+
+	uint64_t grid_size;
+	uint64_t border_width;
 };
 
 const struct options *options_parse(int argc, const char *argv[]);
