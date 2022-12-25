@@ -41,8 +41,10 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs $(PKG_DEPS))
 
 SRC := \
 	src/cli.c \
+	src/grid.c \
 	src/load.c \
 	src/main.c \
+	src/output.c \
 	src/puzzle.c \
 	src/options.c
 

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "output.h"
 #include "puzzle.h"
 #include "options.h"
 
@@ -47,8 +48,22 @@ int main(int argc, const char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	if (!output_init(options, puzzle)) {
+		fprintf(stderr, "Failed to initialise output!\n");
+		exit_code = EXIT_FAILURE;
+		goto exit;
+	}
+
+	if (!puzzle_solve(puzzle)) {
+		fprintf(stderr, "Failed to solve puzzle!\n");
+		exit_code = EXIT_FAILURE;
+		goto exit;
+	}
+
 	exit_code = EXIT_SUCCESS;
 
+exit:
+	output_fini();
 	puzzle_free(puzzle);
 	return exit_code;
 }
