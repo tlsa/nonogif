@@ -1,0 +1,44 @@
+name: "Linux Build"
+
+on: [push]
+
+jobs:
+  linux:
+    name: '${{ matrix.os }}: ${{ matrix.compiler.vendor }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+        compiler:
+          - { vendor: gnu,  CC: gcc,   }
+          - { vendor: llvm, CC: clang, }
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+
+    - name: apt-get install packages
+      run: sudo apt-get update -qq &&
+           sudo apt-get install --no-install-recommends -y
+               build-essential
+               libcyaml-dev
+               libcgif-dev
+               pkg-config
+               clang
+               llvm
+
+    - name: Build
+      env:
+        CC: ${{ matrix.compiler.CC }}
+        AR: ${{ matrix.compiler.AR }}
+        TARGET: ${{ github.event.repository.name }}
+      run: |
+          make -j"$(nproc)"
+
+    - name: Run
+      run: |
+          ./build/release/nonogif -po /tmp/nonogif.gif test/data/nonogif.yaml
