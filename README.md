@@ -5,6 +5,8 @@ This command line program renders [Nonogram](https://en.wikipedia.org/wiki/Nonog
 puzzles to GIF files. It provides a range of options to control the look of the
 output animation.
 
+![NonoGIF logo: Animated Nonogram solution](docs/nonogif.gif)
+
 Nonograms (also known as Paint by Numbers, Picross, and Pixel Puzzles, amongst
 others) are a form of puzzle where the object is to use clues to fill in the
 cells in a grid to reveal a picture. The clues are provided as a series of
@@ -18,7 +20,16 @@ option for every line until the puzzle is complete.
 
 I made it because I was given a Nonogram in a Christmas card and I thought it
 would be fun to write a program to solve it, and send my friend a GIF of the
-solution.
+solution. The above animation was generated with the following command:
+
+```bash
+nonogif \
+    --delay 20 \
+    --style detail \
+    --final-delay 1000 \
+    --output docs/nonogif.gif \
+    test/data/nonogif.yaml
+```
 
 ## Features
 
