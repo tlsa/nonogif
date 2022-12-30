@@ -5,6 +5,8 @@ This command line program renders [Nonogram](https://en.wikipedia.org/wiki/Nonog
 puzzles to GIF files. It provides a range of options to control the look of the
 output animation.
 
+![NonoGIF logo: Animated Nonogram solution](docs/nonogif.gif)
+
 Nonograms (also known as Paint by Numbers, Picross, and Pixel Puzzles, amongst
 others) are a form of puzzle where the object is to use clues to fill in the
 cells in a grid to reveal a picture. The clues are provided as a series of
