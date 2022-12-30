@@ -1,0 +1,7 @@
+name: Ambiguous
+columns:
+  - clues: [1]
+  - clues: [1]
+rows:
+  - clues: [1]
+  - clues: [1]

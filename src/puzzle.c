@@ -332,6 +332,7 @@ bool puzzle_is_complete(const struct puzzle *p)
 
 bool puzzle_solve(struct puzzle *p)
 {
+	size_t cells_complete = 0;
 	bool ok = true;
 	int pass = 0;
 
@@ -343,6 +344,15 @@ bool puzzle_solve(struct puzzle *p)
 		if (!puzzle__solve_pass(p, lines, line_count)) {
 			ok = false;
 			break;
+		}
+
+		if (vertical) {
+			if (cells_complete == p->cells_complete) {
+				fprintf(stderr, "Couldn't solve puzzle!\n");
+				break;
+			}
+
+			cells_complete = p->cells_complete;
 		}
 
 		pass++;

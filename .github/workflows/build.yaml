@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   linux:
-    name: '${{ matrix.os }}: ${{ matrix.compiler.vendor }}'
+    name: '${{ matrix.os }}: ${{ matrix.compiler.vendor }}: ${{ matrix.variant }}'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -14,6 +14,10 @@ jobs:
         compiler:
           - { vendor: gnu,  CC: gcc,   }
           - { vendor: llvm, CC: clang, }
+        variant:
+          - debug
+          - release
+          - sanitize
 
     steps:
     - name: Checkout
@@ -34,11 +38,11 @@ jobs:
     - name: Build
       env:
         CC: ${{ matrix.compiler.CC }}
-        AR: ${{ matrix.compiler.AR }}
-        TARGET: ${{ github.event.repository.name }}
       run: |
-          make -j"$(nproc)"
+          make -j"$(nproc)" VARIANT=${{ matrix.variant }}
 
     - name: Run
       run: |
-          ./build/release/nonogif -po /tmp/nonogif.gif test/data/nonogif.yaml
+          for i in test/data/*.yaml; do
+            ./build/${{ matrix.variant }}/nonogif -po $(basename "${i}").gif "$i"
+          done
