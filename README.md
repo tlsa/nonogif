@@ -20,7 +20,16 @@ option for every line until the puzzle is complete.
 
 I made it because I was given a Nonogram in a Christmas card and I thought it
 would be fun to write a program to solve it, and send my friend a GIF of the
-solution.
+solution. The above animation was generated with the following command:
+
+```bash
+nonogif \
+    --delay 20 \
+    --style detail \
+    --final-delay 1000 \
+    --output docs/nonogif.gif \
+    test/data/nonogif.yaml
+```
 
 ## Features
 
