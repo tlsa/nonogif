@@ -60,6 +60,6 @@ By default a `release` build is built. To build a `debug` or `sanitizer`
 variant, set `VARIANT` accordingly:
 
 ```bash
-make VARIENT=debug
+make VARIANT=debug
 make VARIANT=sanitizer
 ```
