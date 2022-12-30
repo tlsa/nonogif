@@ -13,7 +13,7 @@
 
 /** Default options, overwritten by CLI arguments. */
 static struct options options = {
-	.delay = 2,
+	.delay = 20,
 	.grid_size = 16,
 	.border_width = 1,
 	.final_delay = 500,
@@ -22,8 +22,8 @@ static struct options options = {
 };
 
 static struct cli_str_val cli_img_opt_style[] = {
-	{ .str = "simple" ,  .val = OUTPUT_STYLE_SIMPLE  },
-	{ .str = "detail", .val = OUTPUT_STYLE_DETAILS },
+	{ .str = "simple" , .val = OUTPUT_STYLE_SIMPLE  },
+	{ .str = "detail",  .val = OUTPUT_STYLE_DETAILS },
 	{ .str = NULL },
 };
 
