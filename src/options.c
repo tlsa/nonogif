@@ -162,6 +162,8 @@ const struct cli_table cli = {
 	.entries = cli_entries,
 	.count = (sizeof(cli_entries))/(sizeof(*cli_entries)),
 	.min_positional = 1,
+	.d = "NonoGIF is a tool for generating animated GIFs of Nonogram "
+	     "solutions.",
 };
 
 const struct options *options_parse(int argc, const char *argv[])
