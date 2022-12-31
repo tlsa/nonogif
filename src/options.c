@@ -82,7 +82,8 @@ static const struct cli_table_entry cli_entries[] = {
 	{
 		.s = 'h',
 		.l = "help",
-		.t = CLI_SBOOL,
+		.t = CLI_BOOL,
+		.no_pos = true,
 		.v.b = &options.help,
 		.d = "Print this text.",
 	},
@@ -125,7 +126,8 @@ static const struct cli_table_entry cli_entries[] = {
 	{
 		.s = 'v',
 		.l = "version",
-		.t = CLI_SBOOL,
+		.t = CLI_BOOL,
+		.no_pos = true,
 		.v.b = &options.version,
 		.d = "Print version information.",
 	},

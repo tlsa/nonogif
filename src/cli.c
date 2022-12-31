@@ -17,9 +17,12 @@
 
 #include "cli.h"
 
+/**
+ * CLI parsing context.
+ */
 struct cli_ctx {
-	const struct cli_table *cli;
-	size_t special_flags;
+	const struct cli_table *cli; /**< Client CLI spec. */
+	bool no_pos; /**< Have an argument that negates min_positional. */
 };
 
 /**
@@ -318,11 +321,12 @@ static bool cli__parse_short(struct cli_ctx *ctx,
 			return false;
 		}
 
+		if (entry->no_pos) {
+			ctx->no_pos = true;
+		}
+
 		if (entry->t == CLI_BOOL) {
 			*entry->v.b = true;
-		} else if (entry->t == CLI_SBOOL) {
-			*entry->v.b = true;
-			ctx->special_flags++;
 		} else {
 			return cli__handle_arg_value(entry, argc, argv,
 					arg_pos, pos + 1, '\0');
@@ -395,17 +399,17 @@ static bool cli__parse_long(struct cli_ctx *ctx,
 		return false;
 	}
 
-	if (entry->t == CLI_BOOL || entry->t == CLI_SBOOL) {
+	if (entry->no_pos) {
+		ctx->no_pos = true;
+	}
+
+	if (entry->t == CLI_BOOL) {
 		if (arg[pos] != '\0') {
 			fprintf(stderr, "Unexpected value for argument '%s'\n",
 					arg);
 			return false;
 		}
 		*entry->v.b = true;
-
-		if (entry->t == CLI_SBOOL) {
-			ctx->special_flags++;
-		}
 	} else {
 		bool ret;
 
@@ -618,7 +622,7 @@ bool cli_parse(const struct cli_table *cli, int argc, const char **argv)
 		pos_count += pos_inc;
 	}
 
-	if (ctx.special_flags == 0 && pos_count < cli->min_positional) {
+	if (ctx.no_pos == false && pos_count < cli->min_positional) {
 		fprintf(stderr, "Insufficient positional arguments found.\n");
 		return false;
 	}

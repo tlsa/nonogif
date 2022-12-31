@@ -27,7 +27,6 @@
  */
 enum cli_arg_type {
 	CLI_CMD,    /**< A sub-command. Must match long argument name. */
-	CLI_SBOOL,  /**< Special flag, presence means ignore min_positional. */
 	CLI_BOOL,   /**< Has no value; presence of flag indicates true. */
 	CLI_INT,    /**< Has signed integer value. */
 	CLI_UINT,   /**< Has unsigned integer value. */
@@ -52,6 +51,7 @@ struct cli_table_entry {
 	const char *l; /**< Long argument name. */
 	const char  s; /**< Short flag name. (Non-positional arguments.) */
 	bool p; /**< Whether the argument is a positional argument. */
+	bool no_pos; /**< When present, no positional arguments are required. */
 	enum cli_arg_type t; /**< Argument type. */
 	union {
 		bool *b;        /**< Location to store \ref CLI_BOOL value. */
