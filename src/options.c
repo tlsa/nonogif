@@ -22,15 +22,40 @@ static struct options options = {
 };
 
 static struct cli_str_val cli_img_opt_style[] = {
-	{ .str = "simple" , .val = OUTPUT_STYLE_SIMPLE  },
-	{ .str = "detail",  .val = OUTPUT_STYLE_DETAILS },
+	{
+		.str = "simple",
+		.val = OUTPUT_STYLE_SIMPLE,
+		.d   = "Cells in the output have three colours. They are "
+		       "either Set, Clear or a mid-value for anything "
+		       "currently Unknown.",
+	},
+	{
+		.str = "detail",
+		.val = OUTPUT_STYLE_DETAILS,
+		.d   = "Cells in the output still use the Set and Clear "
+		       "values, but the Unknown cells maybe anywhere in the "
+		       "spectrum between the Set and Clear colour, indicating "
+		       "the likelihood that the cell will end up set or clear.",
+	},
 	{ .str = NULL },
 };
 
 static struct cli_str_val cli_img_opt_event[] = {
-	{ .str = "line" , .val = OUTPUT_EVENT_LINE  },
-	{ .str = "pass" , .val = OUTPUT_EVENT_PASS  },
-	{ .str = "final", .val = OUTPUT_EVENT_FINAL },
+	{
+		.str = "line",
+		.val = OUTPUT_EVENT_LINE,
+		.d   = "Output a frame of animation for each line considered.",
+	},
+	{
+		.str = "pass", .val = OUTPUT_EVENT_PASS,
+		.d   = "Output a frame of animation for each pass of the whole "
+		       "puzzle.",
+	},
+	{
+		.str = "final",
+		.val = OUTPUT_EVENT_FINAL,
+		.d   = "Only output the final result image. (No animation.)",
+	},
 	{ .str = NULL },
 };
 
