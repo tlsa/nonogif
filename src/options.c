@@ -19,18 +19,48 @@ static struct options options = {
 	.final_delay = 500,
 	.event = OUTPUT_EVENT_LINE,
 	.style = OUTPUT_STYLE_SIMPLE,
+	.colour = {
+		.set = 0x000000,
+		.clear = 0xFFFFFF,
+		.border = 0x000000,
+	},
 };
 
 static struct cli_str_val cli_img_opt_style[] = {
-	{ .str = "simple" , .val = OUTPUT_STYLE_SIMPLE  },
-	{ .str = "detail",  .val = OUTPUT_STYLE_DETAILS },
+	{
+		.str = "simple",
+		.val = OUTPUT_STYLE_SIMPLE,
+		.d   = "Cells in the output have three colours. They are "
+		       "either Set, Clear or a mid-value for anything "
+		       "currently Unknown.",
+	},
+	{
+		.str = "detail",
+		.val = OUTPUT_STYLE_DETAILS,
+		.d   = "Cells in the output still use the Set and Clear "
+		       "values, but the Unknown cells maybe anywhere in the "
+		       "spectrum between the Set and Clear colour, indicating "
+		       "the likelihood that the cell will end up set or clear.",
+	},
 	{ .str = NULL },
 };
 
 static struct cli_str_val cli_img_opt_event[] = {
-	{ .str = "line" , .val = OUTPUT_EVENT_LINE  },
-	{ .str = "pass" , .val = OUTPUT_EVENT_PASS  },
-	{ .str = "final", .val = OUTPUT_EVENT_FINAL },
+	{
+		.str = "line",
+		.val = OUTPUT_EVENT_LINE,
+		.d   = "Output a frame of animation for each line considered.",
+	},
+	{
+		.str = "pass", .val = OUTPUT_EVENT_PASS,
+		.d   = "Output a frame of animation for each pass of the whole "
+		       "puzzle.",
+	},
+	{
+		.str = "final",
+		.val = OUTPUT_EVENT_FINAL,
+		.d   = "Only output the final result image. (No animation.)",
+	},
 	{ .str = NULL },
 };
 
@@ -82,7 +112,8 @@ static const struct cli_table_entry cli_entries[] = {
 	{
 		.s = 'h',
 		.l = "help",
-		.t = CLI_SBOOL,
+		.t = CLI_BOOL,
+		.no_pos = true,
 		.v.b = &options.help,
 		.d = "Print this text.",
 	},
@@ -125,9 +156,31 @@ static const struct cli_table_entry cli_entries[] = {
 	{
 		.s = 'v',
 		.l = "version",
-		.t = CLI_SBOOL,
+		.t = CLI_BOOL,
+		.no_pos = true,
 		.v.b = &options.version,
 		.d = "Print version information.",
+	},
+	{
+		.l = "colour-set",
+		.t = CLI_UINT,
+		.v.u = &options.colour.set,
+		.d = "Set the colour to use for Set cells. "
+		     "Colours must be specified as '0xRRGGBB' hexadecimal.",
+	},
+	{
+		.l = "colour-clear",
+		.t = CLI_UINT,
+		.v.u = &options.colour.clear,
+		.d = "Set the colour to use for Clear cells. "
+		     "Colours must be specified as '0xRRGGBB' hexadecimal.",
+	},
+	{
+		.l = "colour-border",
+		.t = CLI_UINT,
+		.v.u = &options.colour.border,
+		.d = "Set the colour to use for cell borders. "
+		     "Colours must be specified as '0xRRGGBB' hexadecimal.",
 	},
 };
 
@@ -135,6 +188,8 @@ const struct cli_table cli = {
 	.entries = cli_entries,
 	.count = (sizeof(cli_entries))/(sizeof(*cli_entries)),
 	.min_positional = 1,
+	.d = "NonoGIF is a tool for generating animated GIFs of Nonogram "
+	     "solutions.",
 };
 
 const struct options *options_parse(int argc, const char *argv[])
