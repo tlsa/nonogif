@@ -7,6 +7,12 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+struct options_colour {
+	uint64_t set;
+	uint64_t clear;
+	uint64_t border;
+};
+
 struct options {
 	bool help;
 	bool quiet;
@@ -25,6 +31,8 @@ struct options {
 
 	uint64_t grid_size;
 	uint64_t border_width;
+
+	struct options_colour colour;
 };
 
 const struct options *options_parse(int argc, const char *argv[]);

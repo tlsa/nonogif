@@ -19,6 +19,11 @@ static struct options options = {
 	.final_delay = 500,
 	.event = OUTPUT_EVENT_LINE,
 	.style = OUTPUT_STYLE_SIMPLE,
+	.colour = {
+		.set = 0x000000,
+		.clear = 0xFFFFFF,
+		.border = 0x000000,
+	},
 };
 
 static struct cli_str_val cli_img_opt_style[] = {
@@ -155,6 +160,27 @@ static const struct cli_table_entry cli_entries[] = {
 		.no_pos = true,
 		.v.b = &options.version,
 		.d = "Print version information.",
+	},
+	{
+		.l = "colour-set",
+		.t = CLI_UINT,
+		.v.u = &options.colour.set,
+		.d = "Set the colour to use for Set cells. "
+		     "Colours must be specified as '0xRRGGBB' hexadecimal.",
+	},
+	{
+		.l = "colour-clear",
+		.t = CLI_UINT,
+		.v.u = &options.colour.clear,
+		.d = "Set the colour to use for Clear cells. "
+		     "Colours must be specified as '0xRRGGBB' hexadecimal.",
+	},
+	{
+		.l = "colour-border",
+		.t = CLI_UINT,
+		.v.u = &options.colour.border,
+		.d = "Set the colour to use for cell borders. "
+		     "Colours must be specified as '0xRRGGBB' hexadecimal.",
 	},
 };
 
