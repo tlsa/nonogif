@@ -340,7 +340,6 @@ static bool cli__parse_positional_entry(struct cli_ctx *ctx,
  *
  * \param[in] ctx    Command line interface parsing context.
  * \param[in] arg    Argument to parse.
- * \param[in] count  Number of positional arguments parsed already.
  * \return true on success, or false otherwise.
  */
 static bool cli__parse_positional(struct cli_ctx *ctx,
@@ -678,7 +677,7 @@ static void cli__print_wrapping_string(const char *str, size_t indent)
  *
  * The indent is assumed to already be applied for the first line of the
  * output by the caller.
- * 
+ *
  * \param[in] entry   The entry to print the description for.
  * \param[in] indent  The number of spaces to pad the left margin with.
  */
