@@ -41,7 +41,7 @@ nonogif \
   - Options to animate line by line, pass by pass or simply render the final
     result to a non-animated GIF.
   - Options to control animation behaviour, e.g. inter frame delays.
-  - Options to control appearance, e.g. grid size and border thickness.
+  - Options to control appearance, e.g. grid size, border thickness and colours.
 
 ## Dependencies
 
