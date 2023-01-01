@@ -25,30 +25,11 @@ static struct {
 
 	CGIF *gif;
 
-	uint8_t palette[OUTPUT_STYLE__COUNT][3 * 256];
-} output_g = {
-	.palette = {
-		[OUTPUT_STYLE_SIMPLE] = {
-			  0,   0,   0, // Black
-			127, 127, 127, // Grey
-			255, 255, 255, // White
-		},
-	}
-};
-
-static inline uint16_t output__palette_colours(enum output_style style)
-{
-	uint16_t count[] = {
-		[OUTPUT_STYLE_SIMPLE ] =   3,
-		[OUTPUT_STYLE_DETAILS] = 256,
-	};
-
-	if (style >= sizeof(count) / sizeof(*count)) {
-		return 0;
-	}
-
-	return count[style];
-}
+	uint8_t palette[3 * 256];
+	uint16_t palette_count;
+	size_t border_index;
+	size_t set_index;
+} output_g;
 
 static bool output__add_frame(void)
 {
@@ -85,9 +66,8 @@ static bool output__create(
 		.height = height,
 		.path = opt->output,
 		.attrFlags = attr_flags,
-		.pGlobalPalette = output_g.palette[opt->style],
-		.numGlobalPaletteEntries = output__palette_colours(
-				(enum output_style) opt->style),
+		.pGlobalPalette = output_g.palette,
+		.numGlobalPaletteEntries = output_g.palette_count,
 	});
 	if (output_g.gif == NULL) {
 		fprintf(stderr, "Failed to create output GIF file.\n");
@@ -110,7 +90,12 @@ static void output__grid_update(void)
 	const struct grid *g = output_g.grid;
 	size_t w = p->col_count;
 	size_t h = p->row_count;
+	uint8_t level_border;
+	uint8_t level_set;
 	uint8_t level;
+
+	level_border = (uint8_t)output_g.border_index;
+	level_set = (uint8_t)output_g.set_index;
 
 	for (size_t y = 0; y < h; y++) {
 		for (size_t x = 0; x < w; x++) {
@@ -119,36 +104,27 @@ static void output__grid_update(void)
 
 			assert(slot_col->done == slot_row->done);
 
-			if (opt->style == OUTPUT_STYLE_SIMPLE) {
-				if (slot_col->done) {
-					if (slot_col->value == 0) {
-						level = 2;
-					} else {
-						level = 0;
-					}
+			if (slot_col->done) {
+				if (slot_col->value == 0) {
+					level = 0;
 				} else {
-					level = 1;
+					level = level_set;
 				}
+			} else if (opt->style == OUTPUT_STYLE_SIMPLE) {
+				level = 1;
 			} else {
 				size_t slot_val = slot_col->value * p->row[y].slot_max +
 				                  slot_row->value * p->col[x].slot_max;
 				size_t slot_max = p->col[x].slot_max *
-				                  p->row[y].slot_max *
-				                  2ll;
+				                  p->row[y].slot_max * 2ll;
+				size_t max_idx = level_set;
 
-				if (slot_col->done) {
-					if (slot_col->value == 0) {
-						level = 255;
-					} else {
-						level = 0;
-					}
-				} else {
-					assert(slot_val <= slot_max);
+				assert(slot_val <= slot_max);
 
-					slot_val = slot_max - slot_val;
-					level = (uint8_t)(slot_val * 255 /
-							slot_max);
-				}
+				slot_val = slot_max - slot_val;
+				level = (uint8_t)(max_idx -
+						(slot_val * max_idx /
+						slot_max));
 			}
 
 			for (size_t i = 0; i < opt->grid_size; i++) {
@@ -160,7 +136,7 @@ static void output__grid_update(void)
 					size_t pos = yy * g->width + xx;
 
 					if (border_x || border_y) {
-						g->data[pos] = 0;
+						g->data[pos] = level_border;
 					} else {
 						g->data[pos] = level;
 					}
@@ -169,7 +145,98 @@ static void output__grid_update(void)
 		}
 	}
 
+	for (size_t y = 0; y < g->height; y++) {
+		for (size_t x = w * opt->grid_size; x < g->width; x++) {
+			size_t pos = y * g->width + x;
+			g->data[pos] = level_border;
+		}
+	}
+
+	for (size_t y = h * opt->grid_size; y < g->height; y++) {
+		for (size_t x = 0; x < g->width; x++) {
+			size_t pos = y * g->width + x;
+			g->data[pos] = level_border;
+		}
+	}
+
 	output_g.cells_complete = p->cells_complete;
+}
+
+static void output__generate_palette_spectrum(int count)
+{
+	enum { RED, GREEN, BLUE, COUNT };
+	int set[COUNT] = {
+		[RED  ] = (output_g.options->colour.set >> 16) & 0xFF,
+		[GREEN] = (output_g.options->colour.set >>  8) & 0xFF,
+		[BLUE ] = (output_g.options->colour.set >>  0) & 0xFF,
+	};
+	int clear[COUNT] = {
+		[RED  ] = (output_g.options->colour.clear >> 16) & 0xFF,
+		[GREEN] = (output_g.options->colour.clear >>  8) & 0xFF,
+		[BLUE ] = (output_g.options->colour.clear >>  0) & 0xFF,
+	};
+	uint8_t *p = output_g.palette;
+
+	for (int i = 0; i < count; i++) {
+		for (size_t c = 0; c < COUNT; c++) {
+			*p++ = (uint8_t)((i * (set[c] - clear[c])) /
+					(count - 1) + clear[c]);
+		}
+	}
+
+	output_g.set_index = (size_t)(count - 1);
+}
+
+static void output__generate_palette(void)
+{
+	enum { RED, GREEN, BLUE, COUNT };
+	int border[COUNT] = {
+		[RED  ] = (output_g.options->colour.border >> 16) & 0xFF,
+		[GREEN] = (output_g.options->colour.border >>  8) & 0xFF,
+		[BLUE ] = (output_g.options->colour.border >>  0) & 0xFF,
+	};
+
+	output_g.palette_count = 3;
+
+	if (output_g.options->style == OUTPUT_STYLE_DETAILS) {
+		output_g.palette_count = 256;
+	}
+
+	output__generate_palette_spectrum((int)output_g.palette_count);
+
+	if (output_g.options->border_width != 0) {
+		bool have_border_colour = false;
+
+		for (int i = 0; i < output_g.palette_count; i++) {
+			uint8_t *p = &output_g.palette[i * 3];
+
+			if (border[RED  ] == p[RED  ] &&
+			    border[GREEN] == p[GREEN] &&
+			    border[BLUE ] == p[BLUE ]) {
+				have_border_colour = true;
+				output_g.border_index = (size_t)i;
+			}
+		}
+
+		if (have_border_colour == false) {
+			uint8_t *p;
+
+			if (output_g.palette_count == 256) {
+				output_g.palette_count--;
+				output__generate_palette_spectrum(
+						(int)output_g.palette_count);
+			}
+
+			output_g.border_index = output_g.palette_count;
+			p = &output_g.palette[output_g.border_index * 3];
+
+			p[RED  ] = (uint8_t)border[RED  ];
+			p[GREEN] = (uint8_t)border[GREEN];
+			p[BLUE ] = (uint8_t)border[BLUE ];
+
+			output_g.palette_count++;
+		}
+	}
 }
 
 bool output_init(const struct options *opt,
@@ -195,22 +262,17 @@ bool output_init(const struct options *opt,
 
 	output_g.options = opt;
 	output_g.puzzle = puzzle;
+	output__generate_palette();
 
 	output_g.grid = grid_create(width, height);
 	if (output_g.grid == NULL) {
 		return false;
 	}
+
 	output__grid_update();
 
 	if (opt->output == NULL) {
 		return true;
-	}
-
-	for (size_t i = 0; i < 256; i++) {
-		size_t offset = i * 3;
-		output_g.palette[OUTPUT_STYLE_DETAILS][offset + 0] = (uint8_t)i;
-		output_g.palette[OUTPUT_STYLE_DETAILS][offset + 1] = (uint8_t)i;
-		output_g.palette[OUTPUT_STYLE_DETAILS][offset + 2] = (uint8_t)i;
 	}
 
 	if (!output__create(opt, width, height)) {
