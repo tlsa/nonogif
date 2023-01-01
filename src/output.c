@@ -83,6 +83,43 @@ static bool output__create(
 	return true;
 }
 
+static uint8_t output__get_level(size_t x, size_t y)
+{
+	const struct puzzle *p = output_g.puzzle;
+	const struct options *opt = output_g.options;
+	struct puzzle_slot *slot_col = &p->col[x].slot[y];
+	struct puzzle_slot *slot_row = &p->row[y].slot[x];
+	uint8_t level_set = (uint8_t)output_g.set_index;
+	uint8_t level;
+
+	assert(slot_col->done == slot_row->done);
+
+	if (slot_col->done) {
+		if (slot_col->value == 0) {
+			level = 0;
+		} else {
+			level = level_set;
+		}
+	} else if (opt->style == OUTPUT_STYLE_SIMPLE) {
+		level = level_set / 2;
+	} else {
+		size_t slot_val = slot_col->value * p->row[y].slot_max +
+		                  slot_row->value * p->col[x].slot_max;
+		size_t slot_max = p->col[x].slot_max *
+		                  p->row[y].slot_max * 2ll;
+		size_t max_idx = level_set;
+
+		assert(slot_val <= slot_max);
+
+		slot_val = slot_max - slot_val;
+		level = (uint8_t)(max_idx -
+				(slot_val * max_idx /
+				slot_max));
+	}
+
+	return level;
+}
+
 static void output__grid_update(void)
 {
 	const struct options *opt = output_g.options;
@@ -91,41 +128,12 @@ static void output__grid_update(void)
 	size_t w = p->col_count;
 	size_t h = p->row_count;
 	uint8_t level_border;
-	uint8_t level_set;
-	uint8_t level;
 
 	level_border = (uint8_t)output_g.border_index;
-	level_set = (uint8_t)output_g.set_index;
 
 	for (size_t y = 0; y < h; y++) {
 		for (size_t x = 0; x < w; x++) {
-			struct puzzle_slot *slot_col = &p->col[x].slot[y];
-			struct puzzle_slot *slot_row = &p->row[y].slot[x];
-
-			assert(slot_col->done == slot_row->done);
-
-			if (slot_col->done) {
-				if (slot_col->value == 0) {
-					level = 0;
-				} else {
-					level = level_set;
-				}
-			} else if (opt->style == OUTPUT_STYLE_SIMPLE) {
-				level = 1;
-			} else {
-				size_t slot_val = slot_col->value * p->row[y].slot_max +
-				                  slot_row->value * p->col[x].slot_max;
-				size_t slot_max = p->col[x].slot_max *
-				                  p->row[y].slot_max * 2ll;
-				size_t max_idx = level_set;
-
-				assert(slot_val <= slot_max);
-
-				slot_val = slot_max - slot_val;
-				level = (uint8_t)(max_idx -
-						(slot_val * max_idx /
-						slot_max));
-			}
+			uint8_t level = output__get_level(x, y);
 
 			for (size_t i = 0; i < opt->grid_size; i++) {
 				size_t yy = y * opt->grid_size + i;
