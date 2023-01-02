@@ -48,6 +48,12 @@ nonogif \
 * [libcgif](https://github.com/dloebl/cgif): GIF encoding.
 * [libcyaml](https://github.com/tlsa/libcyaml): YAML loading.
 
+On a Debian or Ubuntu system, install them with:
+
+```bash
+sudo apt-get install libcgif-dev libcyaml-dev
+```
+
 ## Building
 
 Simply run
