@@ -49,6 +49,7 @@ static bool puzzle__initialise_lines(
 	for (size_t i = 0; i < line_count; i++) {
 		struct puzzle_line *line = &lines[i];
 
+		line->update_needed = true;
 		line->slot_count = slot_count;
 		line->slot = calloc(slot_count, sizeof(*line->slot));
 		if (line->slot == NULL) {
@@ -247,6 +248,7 @@ static void puzzle__solve_slot_done(
 	line->slot[slot_idx].done = true;
 	line->total++;
 
+	other->update_needed = true;
 	other_slot->value = line->slot[slot_idx].value;
 	other_slot->done = true;
 	other->total++;
@@ -303,6 +305,7 @@ static bool puzzle__solve_line(
 		}
 	}
 
+	line->update_needed = false;
 	output_event_notify(OUTPUT_EVENT_LINE);
 	return true;
 }
@@ -313,7 +316,8 @@ static bool puzzle__solve_pass(
 		size_t line_count)
 {
 	for (size_t i = 0; i < line_count; i++) {
-		if (lines[i].total == lines[i].slot_count) {
+		if (lines[i].total == lines[i].slot_count ||
+		    lines[i].update_needed == false) {
 			continue;
 		}
 		if (!puzzle__solve_line(p, lines, i)) {
