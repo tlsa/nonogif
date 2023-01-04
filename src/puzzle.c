@@ -144,16 +144,16 @@ static inline bool puzzle__can_place_single_clue(
 		size_t gap,
 		size_t pos)
 {
-	if (gap >= clue) {
-		if (pos + clue < line->slot_count &&
-		    puzzle__slot_is_set(&line->slot[pos + clue])) {
-			return false;
-		} else {
-			return true;
-		}
+	if (gap < clue) {
+		return false;
 	}
 
-	return false;
+	if (pos + clue < line->slot_count &&
+	    puzzle__slot_is_set(&line->slot[pos + clue])) {
+		return false;
+	}
+
+	return true;
 }
 
 static inline bool puzzle__can_place_clue(
