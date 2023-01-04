@@ -263,11 +263,9 @@ static bool puzzle__solve_line(
 {
 	bool placed;
 	size_t clue;
-	bool resetting = false;
 	struct puzzle_line *line = &lines[line_idx];
 
 	line->slot_max = 0;
-
 	for (size_t s = 0; s < line->slot_count; s++) {
 		if (line->slot[s].done == false) {
 			line->slot[s].value = 0;
@@ -275,24 +273,28 @@ static bool puzzle__solve_line(
 	}
 
 	placed = puzzle__try_place_clues(p, line, 0, 0);
-	clue = line->clue_count - 1;
-
 	if (!placed) {
 		fprintf(stderr, "ERROR: Couldn't fit clues on line!\n");
 		return false;
 	}
 
+	clue = line->clue_count - 1;
+
 	while (clue < line->clue_count) {
-		placed = puzzle__try_place_clues(p, line, clue,
-				p->clue_start[clue] + 1);
-		if (!placed) {
-			if (clue == 0) {
-				break;
-			}
+		size_t pos = p->clue_start[clue];
+
+		if (puzzle__slot_is_set(&line->slot[pos]) ||
+		    pos == line->slot_count) {
 			clue--;
-			resetting = true;
-		} else if (resetting) {
+			continue;
+		}
+		pos++;
+
+		placed = puzzle__try_place_clues(p, line, clue, pos);
+		if (placed) {
 			clue = line->clue_count - 1;
+		} else {
+			clue--;
 		}
 	}
 
