@@ -24,6 +24,8 @@ struct puzzle_line {
 	struct puzzle_slot *slot; /**< Solver: Array of slots on line. */
 	size_t slot_count;        /**< Solver: Number of entries in array. */
 	size_t slot_max;          /**< Solver: Maximum slot value. */
+
+	bool update_needed; /**< The line state needs update (a solver run). */
 };
 
 /** Puzzle data representation. */
